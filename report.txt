@@ -4,10 +4,22 @@ Github project url: https://github.com/s3850825/OSP-PrgAsg1-s3850825
 
 2.
 
-3.
+3. 
+
+a. 
+(i) Algorithm for question A
+(ii) Algorithm for question C
+
 
 
 4.
 
+a. 
+(i) How algorithm for question A works
+(ii) How algorithm for question C works
+
+b. 
+(i)
+(ii)
 
 
