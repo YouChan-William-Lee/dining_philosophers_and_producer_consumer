@@ -1,13 +1,12 @@
-CC = gcc
+Target= a
+CC= gcc
+CFLAGS= -Wall -o
+LFLAGS= -lpthread
 
-CFLAGS  = -g -Wall
+all: $(Target)
 
-TARGET = a
-
-all: $(TARGET)
-
-$(TARGET): $(TARGET).c
-$(CC) $(CFLAGS) -o $(TARGET) $(TARGET).c
+$(Target): $(Target).c
+	$(CC) $(LFLAGS) $(CFLAGS) $(Target) $(Target).c
 
 clean:
-$(RM) $(TARGET)
+	rm -f $(Target) *.o
