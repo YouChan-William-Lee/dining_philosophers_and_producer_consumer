@@ -7,68 +7,72 @@
 
 #define NUM_THREADS 5
 #define NUM_BUCKETS 10
+#define MAX_RANDOM_NUMBER 99
 
-int buffer = 0;
-int buckets[NUM_BUCKETS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int bucketIn = 0;
+int bucketOut = 0;
+int buckets[NUM_BUCKETS];
 bool full = false;
 
 pthread_cond_t wait_here;
 pthread_mutex_t buffer_lock;
 
-void * producer(void * param) {
-    srand((unsigned) time(NULL));
-    for (int bucket = 0; bucket < NUM_BUCKETS; bucket++) {
+void * producer(void * p_no) {
+    // srand((unsigned)time(NULL));
+
+    for (int i = 0; i < NUM_BUCKETS; i++) {
+        // producer checks if full
+        while (full) {
+            pthread_cond_wait(&wait_here, &buffer_lock);
+        }
         pthread_mutex_lock(&buffer_lock);
         {
-            // producer checks if full
-            while (full) {
-                pthread_cond_wait(&wait_here, &buffer_lock);
-            }
-            buffer = rand() % 100 + 1;
+            int item = rand() % MAX_RANDOM_NUMBER + 1;
             full = true;
-            buckets[bucket] = buffer;
-            printf("Producer%d produces %d in buckets[%d] -> ", param + 1, buckets[bucket], bucket);
-            printf("buckets[] = ");
-            for(int bucket = 0; bucket < NUM_BUCKETS; bucket++) {
-                printf("%d ", buckets[bucket]);
-            }
-            printf("\n");
+            buckets[bucketIn] = item;
+
+            // Display current state of buckets[]
+            printf("Producer%d produced %2d in buckets[%d]\n",(intptr_t)p_no , buckets[bucketIn], bucketIn);
+        
+            // jump to next bucket 
+            bucketIn = (bucketIn + 1) % NUM_BUCKETS;
         }
         pthread_mutex_unlock(&buffer_lock);
         pthread_cond_signal(&wait_here);
     }
+    return NULL;
 }
 
-void * consumer(void * param) {
-    srand((unsigned) time(NULL));
-    for (int bucket = 0; bucket < NUM_BUCKETS; bucket++) {
+void * consumer(void * c_no) { 
+    for (int i = 0; i < NUM_BUCKETS; i++) {
+        // consumer checks if empty
+        while (!full) {
+            pthread_cond_wait(&wait_here, &buffer_lock);
+        }   
         pthread_mutex_lock(&buffer_lock);
-        {
-            // consumer checks if empty
-            while (!full) {
-                pthread_cond_wait(&wait_here, &buffer_lock);
-            }   
-            printf("Consumer%d consumes %d in buckets[%d] -> ", param + 1, buckets[bucket], bucket);
+        {  
             full = false;
-            buckets[bucket] = 0;
-            printf("buckets[] = ");
-            for(int bucket = 0; bucket < NUM_BUCKETS; bucket++) {
-                printf("%d ", buckets[bucket]);
-            }
-            printf("\n");
+            printf("Consumer%d consumed %2d in buckets[%d]\n",(intptr_t)c_no , buckets[bucketOut], bucketOut);
+            
+            // jump to next bucket
+            bucketOut = (bucketOut + 1) % NUM_BUCKETS;
         }
         pthread_mutex_unlock(&buffer_lock);
         pthread_cond_signal(&wait_here);
     }
+    return NULL;
 }
 
 int main(void) {
+    
+    int threadNum[NUM_THREADS] = {1, 2, 3, 4, 5};
+    int result;
     
     printf("buckets[] = ");
     for(int bucket = 0; bucket < NUM_BUCKETS; bucket++) {
         printf("%d ", buckets[bucket]);
     }
-    printf("\n");
+    printf("\n\n");
 
     pthread_mutex_init(&buffer_lock, NULL);
     pthread_cond_init(&wait_here, NULL);
@@ -77,16 +81,25 @@ int main(void) {
     pthread_t consumers[NUM_THREADS];
 
     for(int t = 0; t < NUM_THREADS; t++) {
-        int result;
-        result = pthread_create(&producers[t], NULL, producer, (void *)(intptr_t)t);
+        result = pthread_create(&producers[t], NULL, producer, (void *)(intptr_t)threadNum[t]);
         if(result) {
-            return EXIT_FAILURE;
+            printf("\nThread can't be created : [%s]", strerror(result));
         }
+    }
 
-        result = pthread_create(&consumers[t], NULL, consumer, (void *)(intptr_t)t);
+    for(int t = 0; t < NUM_THREADS; t++) {
+        result = pthread_create(&consumers[t], NULL, consumer, (void *)(intptr_t)threadNum[t]);
         if(result) {
-            return EXIT_FAILURE;
+            printf("\nThread can't be created : [%s]", strerror(result));
         }
+    }
+
+    for(int t = 0; t < NUM_THREADS; t++) {
+        pthread_join(producers[t], NULL);
+    }   
+
+    for(int t = 0; t < NUM_THREADS; t++) {
+        pthread_join(consumers[t], NULL);
     }
     
     pthread_exit(NULL);
