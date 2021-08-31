@@ -1,12 +1,14 @@
-objects= a c
 CC= gcc
 CFLAGS= -Wall -o
 LFLAGS= -lpthread
 
-all: $(objects)
+all: a c
 
-$(Target): $(Target).c
-	$(CC) $(LFLAGS) $(CFLAGS) $(Target) $(Target).c
+a: a.c
+	$(CC) $(LFLAGS) $(CFLAGS) a a.c
+
+c: c.c
+	$(CC) $(LFLAGS) $(CFLAGS) c c.c
 
 clean:
-	rm -f $(Target) *.o
+	rm -f $(OBJECTS) *.o
