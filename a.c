@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
-#include <unistd.h>
-#include <string.h>
+#include <unistd.h> // for strerror
 #include <time.h>
 #include <sys/time.h>
 
