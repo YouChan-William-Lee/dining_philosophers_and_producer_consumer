@@ -1,7 +1,9 @@
-# Student detail
-*Student ID: s3850825
-*Name: You Chan Lee
-*Github project url: https://github.com/s3850825/OSP-PrgAsg1-s3850825
+## Student detail
+* Student ID: s3850825
+* Name: You Chan Lee
+* Github project url: https://github.com/s3850825/OSP-PrgAsg1-s3850825
+
+## Code documentation
 
 To run the application:
 
