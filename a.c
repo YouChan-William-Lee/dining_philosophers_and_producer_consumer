@@ -12,8 +12,8 @@
 
 int bucketIn = 0;
 int bucketOut = 0;
+int NumOfItems = 0;
 int buckets[NUM_BUCKETS];
-bool full = false;
 struct timeval t1, t2, t3, t4;
 double elapsedTime;
 
@@ -22,7 +22,7 @@ pthread_mutex_t mutex;
 
 void * producer(void * p_no) {
     int item;
-    while(bucketIn < NUM_BUCKETS) {
+    while(true) {
         // check the running time
         gettimeofday(&t2, NULL);
         elapsedTime = t2.tv_sec - t1.tv_sec;
@@ -39,16 +39,15 @@ void * producer(void * p_no) {
         // lock here
         pthread_mutex_lock(&mutex);
         {
-            // producer checks if full and bucket isn't empty
-            while (full && buckets[bucketIn] != 0) {
+            // producer checks if buckets are full or current bucket isn't empty
+            while (NumOfItems == 10) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
-
             // put the random number into bucket
             buckets[bucketIn] = item;
-            // Make full true
-            full = true;
-            printf("Producer%d produced %2d in buckets[%d]\n",*((int *)p_no) , buckets[bucketIn], bucketIn);
+            // increase the number of items
+            NumOfItems += 1;
+            printf("Producer%d produced %2d in buckets[%d] %d\n",*((int *)p_no) , buckets[bucketIn], bucketIn, NumOfItems);
             
             // jump to next bucket 
             bucketIn = (bucketIn + 1) % NUM_BUCKETS;
@@ -57,13 +56,12 @@ void * producer(void * p_no) {
         pthread_mutex_unlock(&mutex);
         // send signal
         pthread_cond_signal(&wait_here);
-        
     }
     return NULL;
 }
 
 void * consumer(void * c_no) { 
-    while(bucketOut < NUM_BUCKETS) {
+    while(true) {
         // check the running time
         gettimeofday(&t3, NULL);
         elapsedTime = t3.tv_sec - t1.tv_sec;
@@ -77,15 +75,15 @@ void * consumer(void * c_no) {
         // lock here
         pthread_mutex_lock(&mutex);
         {  
-            // consumer checks if empty and bucket is empty
-            while (!full && buckets[bucketOut] == 0) {
+            // consumer checks if buckets are empty or current bucket is empty
+            while (NumOfItems == 0) {
                 pthread_cond_wait(&wait_here, &mutex);
             } 
-
-            // Make full false
-            full = false;
-            printf("Consumer%d consumed %2d in buckets[%d]\n",*((int *)c_no) , buckets[bucketOut], bucketOut);
+            // decrease the number of items
+            NumOfItems -= 1;
+            printf("Consumer%d consumed %2d in buckets[%d] %d\n",*((int *)c_no) , buckets[bucketOut], bucketOut, NumOfItems);
             buckets[bucketOut] = 0;
+            
             // jump to next bucket
             bucketOut = (bucketOut + 1) % NUM_BUCKETS;
         }
@@ -124,15 +122,13 @@ int main(void) {
         if(result) {
             printf("\nThread can't be created : [%s]", strerror(result));
         }
-    }
 
-    // create 5 threads which are consumers
-    for(t = 0; t < NUM_THREADS; t++) {
         result = pthread_create(&consumers[t], NULL, (void *)consumer, (void *)&threadNum[t]);
         if(result) {
             printf("\nThread can't be created : [%s]", strerror(result));
         }
     }
+
 
     // wait for producers termination
     for(t = 0; t < NUM_THREADS; t++) {
