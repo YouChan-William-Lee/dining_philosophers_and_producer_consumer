@@ -39,13 +39,13 @@ void test(int philosopher_number)
 void * return_forks(void * p_no)
 {
     int philosopher_number = *(int *)p_no;
-    int left = (philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER;
+    int left = philosopher_number;
     int right = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
     pthread_mutex_lock(&forks[right]);
-    printf("Philosopher %d returned fork %d\n", right);
+    printf("Philosopher %d returned fork %d\n",philosopher_number, right);
     pthread_mutex_lock(&forks[left]);
-    printf("Philosopher %d returned fork %d\n", left);
+    printf("Philosopher %d returned fork %d\n",philosopher_number, left);
 
     state[philosopher_number] = THINKING;
 
@@ -62,23 +62,23 @@ void * return_forks(void * p_no)
 void * pickup_forks(void * p_no)
 {
     int philosopher_number = *(int *)p_no;
-    int left = (philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER;
+    int left = philosopher_number;
     int right = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
     while(NumOfEaten[philosopher_number] < MAX_MEALS)
     {
-        int sleeptime = rand() % 20 + 1;
+        int sleeptime = rand() % 5 + 1;
         printf("Philosopher %d is thinking for %d seconds\n", philosopher_number, sleeptime);
         // think
         sleep(sleeptime);
-
-        pthread_mutex_lock(&forks[left]);
-        printf("Philosopher %d got fork %d\n", left);
-        pthread_mutex_lock(&forks[right]);
-        printf("Philosopher %d got fork %d\n", right);
         
         state[philosopher_number] = HUNGRY;
         test(philosopher_number);
+
+        pthread_mutex_lock(&forks[left]);
+        printf("Philosopher %d got fork %d\n",philosopher_number, left);
+        pthread_mutex_lock(&forks[right]);
+        printf("Philosopher %d got fork %d\n",philosopher_number, right);
 
         while(state[philosopher_number] != EATING)
         {
@@ -106,7 +106,7 @@ int main(void)
     srand((unsigned) time(NULL));
 
     // numbering for threads
-    int threadNum[NUM_PHILOSOPHER] = {1, 2, 3, 4, 5};
+    int threadNum[NUM_PHILOSOPHER] = {0, 1, 2, 3, 4};
 
     //Initialize arrays.
     int t;
