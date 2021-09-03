@@ -39,51 +39,54 @@ void test(int philosopher_number)
 void * return_forks(void * p_no)
 {
     int philosopher_number = *(int *)p_no;
+    int left = (philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER;
+    int right = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
-    pthread_mutex_lock(&forks[(philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER]);
-    printf("Philosopher %d returned fork %d\n", philosopher_number, philosopher_number + LEFT);
-    pthread_mutex_lock(&forks[(philosopher_number + RIGHT) % NUM_PHILOSOPHER]);
-    printf("Philosopher %d returned fork %d\n", philosopher_number, philosopher_number + RIGHT);
+    pthread_mutex_lock(&forks[right]);
+    printf("Philosopher %d returned fork %d\n", right);
+    pthread_mutex_lock(&forks[left]);
+    printf("Philosopher %d returned fork %d\n", left);
 
     state[philosopher_number] = THINKING;
 
     // test left neighbour 
-    test((philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER);
+    test(left);
     // test right neighbour 
-    test((philosopher_number + RIGHT) % NUM_PHILOSOPHER);
+    test(right);
 
-    pthread_mutex_unlock(&forks[(philosopher_number + RIGHT) % NUM_PHILOSOPHER]);
-    pthread_mutex_unlock(&forks[(philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER]);
+    pthread_mutex_unlock(&forks[right]);
+    pthread_mutex_unlock(&forks[left]);
+    return NULL;
 }
 
 void * pickup_forks(void * p_no)
 {
-    int loop_iterations = 0;
     int philosopher_number = *(int *)p_no;
+    int left = (philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER;
+    int right = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
     while(NumOfEaten[philosopher_number] < MAX_MEALS)
     {
-        printf("Philosopher %d is thinking\n", philosopher_number);
-        // think
         int sleeptime = rand() % 20 + 1;
-        printf("%d\n",sleeptime);
+        printf("Philosopher %d is thinking for %d seconds\n", philosopher_number, sleeptime);
+        // think
         sleep(sleeptime);
 
-        pthread_mutex_lock(&forks[(philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER]);
-        printf("Philosopher %d got fork %d\n", philosopher_number, philosopher_number + LEFT);
-        pthread_mutex_lock(&forks[(philosopher_number + RIGHT) % NUM_PHILOSOPHER]);
-        printf("Philosopher %d got fork %d\n", philosopher_number, philosopher_number + RIGHT);
+        pthread_mutex_lock(&forks[left]);
+        printf("Philosopher %d got fork %d\n", left);
+        pthread_mutex_lock(&forks[right]);
+        printf("Philosopher %d got fork %d\n", right);
         
         state[philosopher_number] = HUNGRY;
         test(philosopher_number);
 
         while(state[philosopher_number] != EATING)
         {
-            pthread_cond_wait(&wait_here[philosopher_number], &forks[(philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER]);
-            pthread_cond_wait(&wait_here[philosopher_number], &forks[(philosopher_number + RIGHT) % NUM_PHILOSOPHER]);
+            pthread_cond_wait(&wait_here[philosopher_number], &forks[left]);
+            pthread_cond_wait(&wait_here[philosopher_number], &forks[right]);
         }
-        pthread_mutex_unlock(&forks[(philosopher_number + RIGHT) % NUM_PHILOSOPHER]);
-        pthread_mutex_unlock(&forks[(philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER]);
+        pthread_mutex_unlock(&forks[right]);
+        pthread_mutex_unlock(&forks[left]);
 
         (NumOfEaten[philosopher_number])++;
 
@@ -93,9 +96,8 @@ void * pickup_forks(void * p_no)
         sleep(rand() % 20 + 1);
 
         return_forks(&philosopher_number);
-
-        loop_iterations++;
     }
+    return NULL;
 }
 
 int main(void)
