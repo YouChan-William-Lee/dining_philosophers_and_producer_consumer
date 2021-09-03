@@ -10,6 +10,7 @@
 #define NUM_THREADS 5
 #define NUM_BUCKETS 10
 #define MAX_RANDOM_NUMBER 99
+#define SLEEP_TIME 10000
 
 int bucketIn = 0;
 int bucketOut = 0;
@@ -58,7 +59,7 @@ void * producer(void * p_no) {
         pthread_mutex_unlock(&mutex);
         // send signal
         pthread_cond_signal(&wait_here);
-        usleep(10000);
+        usleep(SLEEP_TIME);
     }
     return NULL;
 }
@@ -94,7 +95,7 @@ void * consumer(void * c_no) {
         pthread_mutex_unlock(&mutex);
         // send signal
         pthread_cond_signal(&wait_here);
-        usleep(10000);
+        usleep(SLEEP_TIME);
     }
     return NULL;
 }
