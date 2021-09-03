@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
-#include <unistd.h> // for strerror
+#include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
 
@@ -38,16 +38,17 @@ void * producer(void * p_no) {
 
         // lock here
         pthread_mutex_lock(&mutex);
-        {
+        {   
             // producer checks if buckets are full or current bucket isn't empty
             while (NumOfItems == 10) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
+
             // put the random number into bucket
             buckets[bucketIn] = item;
             // increase the number of items
             NumOfItems += 1;
-            printf("Producer%d produced %2d in buckets[%d] %d\n",*((int *)p_no) , buckets[bucketIn], bucketIn, NumOfItems);
+            printf("Producer%d produced %2d in buckets[%d]\n",*((int *)p_no) , buckets[bucketIn], bucketIn);
             
             // jump to next bucket 
             bucketIn = (bucketIn + 1) % NUM_BUCKETS;
@@ -56,6 +57,7 @@ void * producer(void * p_no) {
         pthread_mutex_unlock(&mutex);
         // send signal
         pthread_cond_signal(&wait_here);
+        usleep(10000);
     }
     return NULL;
 }
@@ -81,7 +83,7 @@ void * consumer(void * c_no) {
             } 
             // decrease the number of items
             NumOfItems -= 1;
-            printf("Consumer%d consumed %2d in buckets[%d] %d\n",*((int *)c_no) , buckets[bucketOut], bucketOut, NumOfItems);
+            printf("Consumer%d consumed %2d in buckets[%d]\n",*((int *)c_no) , buckets[bucketOut], bucketOut);
             buckets[bucketOut] = 0;
             
             // jump to next bucket
@@ -91,6 +93,7 @@ void * consumer(void * c_no) {
         pthread_mutex_unlock(&mutex);
         // send signal
         pthread_cond_signal(&wait_here);
+        usleep(10000);
     }
     return NULL;
 }
