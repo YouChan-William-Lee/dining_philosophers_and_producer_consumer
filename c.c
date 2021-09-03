@@ -87,8 +87,7 @@ void * pickup_forks(void * p_no)
             pthread_cond_wait(&wait_here[philosopher_number], &forks[left_fork]);
             pthread_cond_wait(&wait_here[philosopher_number], &forks[right_fork]);
         }
-        pthread_mutex_unlock(&forks[right_fork]);
-        pthread_mutex_unlock(&forks[left_fork]);
+        
 
         (NumOfEaten[philosopher_number])++;
 
@@ -96,6 +95,9 @@ void * pickup_forks(void * p_no)
         
         // eat
         sleep(rand() % 5 + 1);
+
+        pthread_mutex_unlock(&forks[right_fork]);
+        pthread_mutex_unlock(&forks[left_fork]);
 
         return_forks(&philosopher_number);
     }
