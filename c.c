@@ -21,7 +21,7 @@ pthread_t philosophers[NUM_PHILOSOPHER];
 pthread_mutex_t forks[NUM_PHILOSOPHER];
 
 //Condition variables.
-pthread_cond_t wait_here[NUM_PHILOSOPHER];
+pthread_cond_t wait_here;
 
 //Array to hold the number of meals eaten for each philosopher
 int NumOfEaten[NUM_PHILOSOPHER];
@@ -32,7 +32,7 @@ void test(int philosopher_number)
         (state[philosopher_number] == HUNGRY) &&
         (state[(philosopher_number + RIGHT) % NUM_PHILOSOPHER] != EATING)) {
         state[philosopher_number] = EATING;
-        pthread_cond_signal(&wait_here[philosopher_number]);
+        pthread_cond_signal(&wait_here);
     }
 }
 
@@ -84,8 +84,8 @@ void * pickup_forks(void * p_no)
 
         while(state[philosopher_number] != EATING)
         {
-            pthread_cond_wait(&wait_here[philosopher_number], &forks[left_fork]);
-            pthread_cond_wait(&wait_here[philosopher_number], &forks[right_fork]);
+            pthread_cond_wait(&wait_here, &forks[left_fork]);
+            pthread_cond_wait(&wait_here, &forks[right_fork]);
         }
         
 
@@ -113,10 +113,10 @@ int main(void)
     int threadNum[NUM_PHILOSOPHER] = {0, 1, 2, 3, 4};
 
     //Initialize arrays.
+    pthread_cond_init(&wait_here, NULL);
     int t;
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
         state[t] = THINKING;
-        pthread_cond_init(&wait_here[t], NULL);
         NumOfEaten[t] = 0;
         pthread_mutex_init(&forks[t], NULL);
     }
