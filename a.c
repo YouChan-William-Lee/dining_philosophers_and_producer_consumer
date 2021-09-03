@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/time.h>
+#include <string.h>
 
 #define NUM_THREADS 5
 #define NUM_BUCKETS 10
