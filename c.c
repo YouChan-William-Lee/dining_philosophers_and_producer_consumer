@@ -69,10 +69,10 @@ void * pickup_forks(void * p_no)
 
     while(NumOfEaten[philosopher_number] < MAX_MEALS)
     {
-        int sleeptime = rand() % 5 + 1;
-        printf("Philosopher %d is thinking for %d seconds\n", philosopher_number, sleeptime);
+        int sleeptime = rand() % 999999 + 1;
+        printf("Philosopher %d is thinking for %d microseconds\n", philosopher_number, sleeptime);
         // think
-        sleep(sleeptime);
+        usleep(sleeptime);
 
         pthread_mutex_lock(&forks[left_fork]);
         printf("Philosopher %d got fork %d\n",philosopher_number, left_fork);
@@ -94,7 +94,7 @@ void * pickup_forks(void * p_no)
         printf("Philosopher %d is eating meal %d.\n", philosopher_number, NumOfEaten[philosopher_number]);
         
         // eat
-        sleep(rand() % 5 + 1);
+        usleep(rand() % 999999 + 1);
 
         pthread_mutex_unlock(&forks[right_fork]);
         pthread_mutex_unlock(&forks[left_fork]);
