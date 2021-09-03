@@ -71,14 +71,14 @@ void * pickup_forks(void * p_no)
         printf("Philosopher %d is thinking for %d seconds\n", philosopher_number, sleeptime);
         // think
         sleep(sleeptime);
+        
+        state[philosopher_number] = HUNGRY;
+        test(philosopher_number);
 
         pthread_mutex_lock(&forks[left]);
         printf("Philosopher %d got fork %d\n",philosopher_number, left);
         pthread_mutex_lock(&forks[right]);
         printf("Philosopher %d got fork %d\n",philosopher_number, right);
-        
-        state[philosopher_number] = HUNGRY;
-        test(philosopher_number);
 
         while(state[philosopher_number] != EATING)
         {
