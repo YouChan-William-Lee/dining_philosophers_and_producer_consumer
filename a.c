@@ -10,14 +10,14 @@
 #define NUM_THREADS 5
 #define NUM_BUCKETS 10
 #define MAX_RANDOM_NUMBER 99
-#define SLEEP_TIME 10000
+#define SLEEP_TIME 100000
 
 int bucketIn = 0;
 int bucketOut = 0;
 int NumOfItems = 0;
 int buckets[NUM_BUCKETS];
 struct timeval t1, t2, t3, t4;
-double elapsedTime;
+double elapsed_time;
 
 pthread_cond_t wait_here;
 pthread_mutex_t mutex;
@@ -27,11 +27,11 @@ void * producer(void * p_no) {
     while(true) {
         // check the running time
         gettimeofday(&t2, NULL);
-        elapsedTime = t2.tv_sec - t1.tv_sec;
-        elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000000.0;
+        elapsed_time = t2.tv_sec - t1.tv_sec;
+        elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
 
         // check if the running time is greater than or equal to 10
-        if(elapsedTime >= 10.0) {
+        if(elapsed_time >= 10.0) {
             break;
         }
 
@@ -68,11 +68,11 @@ void * consumer(void * c_no) {
     while(true) {
         // check the running time
         gettimeofday(&t3, NULL);
-        elapsedTime = t3.tv_sec - t1.tv_sec;
-        elapsedTime += (t3.tv_usec - t1.tv_usec) / 1000000.0;
+        elapsed_time = t3.tv_sec - t1.tv_sec;
+        elapsed_time += (t3.tv_usec - t1.tv_usec) / 1000000.0;
 
         // check if the running time is greater than or equal to 10
-        if(elapsedTime >= 10.0) {
+        if(elapsed_time >= 10.0) {
             break;
         }
 
@@ -147,10 +147,10 @@ int main(void) {
 
     // check the total running time
     gettimeofday(&t4, NULL);
-    elapsedTime = t4.tv_sec - t1.tv_sec;
-    elapsedTime += (t4.tv_usec - t1.tv_usec) / 1000000.0;
+    elapsed_time = t4.tv_sec - t1.tv_sec;
+    elapsed_time += (t4.tv_usec - t1.tv_usec) / 1000000.0;
 
-    printf("Time = %.2f sec\n", elapsedTime);
+    printf("Time = %.2f sec\n", elapsed_time);
     
     // destroy pthread_mutex
     pthread_mutex_destroy(&mutex);
