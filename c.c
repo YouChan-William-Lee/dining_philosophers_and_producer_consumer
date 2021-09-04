@@ -44,7 +44,7 @@ void * philosopher(void * p_no) {
     int right_fork = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
     int think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
-    printf("Philosopher %d is thinking for %d seconds\n", philosopher_number, think_time);
+    printf("Philosopher %d is thinking for %d microseconds\n", philosopher_number, think_time);
 
     while(true)
     {
@@ -108,7 +108,7 @@ void * philosopher(void * p_no) {
 
                 think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
 
-                printf("Philosopher %d is thinking for %d seconds\n", philosopher_number, think_time);
+                printf("Philosopher %d is thinking for %d microseconds\n", philosopher_number, think_time);
             }
             else {
                 // put down the first fork
