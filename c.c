@@ -49,15 +49,16 @@ void * philosopher(void * p_no) {
     while(true)
     {
         // check the running time
+        printf("inside of while loop");
         gettimeofday(&t2, NULL);
         elapsed_time = t2.tv_sec - t1.tv_sec;
         elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
-
+	printf("\n%.2f seconds\n",elapsed_time);
         // check if the running time is greater than or equal to 10
         if(elapsed_time >= 10.0) {
             break;
         }
-        
+        printf("inside of while loop2");
         // think
         usleep(think_time);
 
@@ -145,12 +146,12 @@ int main(void)
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
         pthread_create(&philosophers[t], NULL, philosopher, (void *)&threadNum[t]);
     }
-
+    printf("test1");	
     // wait for philosophers termination
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
         pthread_join(philosophers[t], NULL);
     }
-
+    printf("test2");
     // check the total running time
     gettimeofday(&t3, NULL);
     elapsed_time = t3.tv_sec - t1.tv_sec;
