@@ -14,9 +14,6 @@
 #define MIN_DELAY 100000
 #define INC_ONE_INDEX 1
 
-pthread_mutex_t forks[NUM_PHILOSOPHER];
-pthread_cond_t wait_here;
-
 // 3 states of philosophers
 enum {THINKING, HUNGRY, EATING} state[NUM_PHILOSOPHER];
 
@@ -24,6 +21,9 @@ enum {THINKING, HUNGRY, EATING} state[NUM_PHILOSOPHER];
 int NumOfEaten[NUM_PHILOSOPHER];
 struct timeval t1, t2, t3;
 double elapsed_time;
+
+pthread_mutex_t forks[NUM_PHILOSOPHER];
+pthread_cond_t wait_here;
 
 // check left neighbour and right neighbour
 void check_neighbours(int philosopher_number) {
@@ -44,9 +44,6 @@ void * philosopher(void * p_no) {
     int left_fork = philosopher_number;
     int right_fork = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
-    int think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
-    printf("Philosopher%d is thinking", philosopher_number + INC_ONE_INDEX);
-
     while(true)
     {
         // check the running time
@@ -58,6 +55,9 @@ void * philosopher(void * p_no) {
             break;
         }
 
+        int think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
+        printf("Philosopher%d is thinking\n", philosopher_number + INC_ONE_INDEX);
+        printf("----------------------------------\n");
         // think
         usleep(think_time);
 
@@ -65,11 +65,11 @@ void * philosopher(void * p_no) {
         state[philosopher_number] = HUNGRY;
 
         // try to grab the first fork (left fork)
-        int rv = pthread_mutex_trylock(&forks[left_fork]);
-        if(rv == 0) {
+        int result = pthread_mutex_trylock(&forks[left_fork]);
+        if(result == 0) {
             // try to grab the second fork (right fork)
-            rv = pthread_mutex_trylock(&forks[right_fork]);
-            if(rv == 0) {
+            result = pthread_mutex_trylock(&forks[right_fork]);
+            if(result == 0) {
                 printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
                 printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
 
@@ -95,6 +95,7 @@ void * philosopher(void * p_no) {
                 // return two forks
                 printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
                 printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
+                printf("----------------------------------\n");
 
                 // unlock
                 pthread_mutex_unlock(&forks[right_fork]);
@@ -105,11 +106,6 @@ void * philosopher(void * p_no) {
 
                 // turn to think
                 state[philosopher_number] = THINKING;
-
-                think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
-
-                printf("Philosopher%d is thinking\n", philosopher_number + INC_ONE_INDEX);
-                printf("----------------------------------\n");
             }
             else {
                 // put down the first fork
