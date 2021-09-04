@@ -12,9 +12,8 @@
 #define RIGHT 1
 #define MAX_DELAY 500000
 #define MIN_DELAY 100000
-#define CONVERT_TO_ARRAY_INDEX -1
+#define INC_ONE_INDEX 1
 
-pthread_t philosophers[NUM_PHILOSOPHER];
 pthread_mutex_t forks[NUM_PHILOSOPHER];
 pthread_cond_t wait_here;
 
@@ -31,8 +30,10 @@ void check_neighbours(int philosopher_number) {
     int left_philosopher = (philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER;
     int right_philosopher = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
-    // check left neighbour                    check this philosopher                   check right neighbour
-    if((state[left_philosopher] != EATING) && (state[philosopher_number] == HUNGRY) && (state[right_philosopher] != EATING)) {
+    // check left neighbour                    check this philosopher                   
+    if((state[left_philosopher] != EATING) && (state[philosopher_number] == HUNGRY) 
+          //check right neighbour
+        && (state[right_philosopher] != EATING)) {
         // if both left neighbour and right neighbour are not eating, then this philosopher can start eating
         state[philosopher_number] = EATING;        
     }
@@ -44,76 +45,75 @@ void * philosopher(void * p_no) {
     int right_fork = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
     int think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
-    printf("Philosopher %d is thinking for %d microseconds\n", philosopher_number, think_time);
+    printf("Philosopher%d is thinking", philosopher_number + INC_ONE_INDEX);
 
     while(true)
     {
         // check the running time
-        printf("inside of while loop");
         gettimeofday(&t2, NULL);
         elapsed_time = t2.tv_sec - t1.tv_sec;
         elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
-	printf("\n%.2f seconds\n",elapsed_time);
         // check if the running time is greater than or equal to 10
         if(elapsed_time >= 10.0) {
             break;
         }
-        printf("inside of while loop2");
+
         // think
         usleep(think_time);
 
         // hungry
-        state[philosopher_number + CONVERT_TO_ARRAY_INDEX] = HUNGRY;
+        state[philosopher_number] = HUNGRY;
 
         // try to grab the first fork (left fork)
-        int rv = pthread_mutex_trylock(&forks[left_fork + CONVERT_TO_ARRAY_INDEX]);
+        int rv = pthread_mutex_trylock(&forks[left_fork]);
         if(rv == 0) {
             // try to grab the second fork (right fork)
-            rv = pthread_mutex_trylock(&forks[right_fork + CONVERT_TO_ARRAY_INDEX]);
+            rv = pthread_mutex_trylock(&forks[right_fork]);
             if(rv == 0) {
-                printf("Philosopher %d picked up fork %d\n",philosopher_number, left_fork);
-                printf("Philosopher %d picked up fork %d\n",philosopher_number, right_fork);
+                printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
+                printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
 
                 // check both left and right neighbour are eating
-                check_neighbours(philosopher_number + CONVERT_TO_ARRAY_INDEX);
+                check_neighbours(philosopher_number);
 
                 // if neighbours are eating, then wait until they finish
-                while(state[philosopher_number + CONVERT_TO_ARRAY_INDEX] != EATING)
+                while(state[philosopher_number] != EATING)
                 {
-                    pthread_cond_wait(&wait_here, &forks[left_fork + CONVERT_TO_ARRAY_INDEX]);
-                    pthread_cond_wait(&wait_here, &forks[right_fork + CONVERT_TO_ARRAY_INDEX]);
+                    pthread_cond_wait(&wait_here, &forks[left_fork]);
+                    pthread_cond_wait(&wait_here, &forks[right_fork]);
                 }
 
                 // increment of this philoshpher's meal
-                (NumOfEaten[philosopher_number + CONVERT_TO_ARRAY_INDEX])++;
+                (NumOfEaten[philosopher_number ])++;
 
-                printf("Philosopher %d is eating meal %d\n", philosopher_number, NumOfEaten[philosopher_number]);
-                
+                printf("Philosopher%d is eating, %d time(s)\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
+                printf("----------------------------------\n");
                 // eat
                 int eat_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
                 usleep(eat_time);
                 
                 // return two forks
-                printf("Philosopher %d returned fork %d\n",philosopher_number, right_fork);
-                printf("Philosopher %d returned fork %d\n",philosopher_number, left_fork);
+                printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
+                printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
 
                 // unlock
-                pthread_mutex_unlock(&forks[right_fork + CONVERT_TO_ARRAY_INDEX]);
-                pthread_mutex_unlock(&forks[left_fork + CONVERT_TO_ARRAY_INDEX]);
+                pthread_mutex_unlock(&forks[right_fork]);
+                pthread_mutex_unlock(&forks[left_fork]);
 
                 // send signal
                 pthread_cond_signal(&wait_here);
 
                 // turn to think
-                state[philosopher_number + CONVERT_TO_ARRAY_INDEX] = THINKING;
+                state[philosopher_number] = THINKING;
 
                 think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
 
-                printf("Philosopher %d is thinking for %d microseconds\n", philosopher_number, think_time);
+                printf("Philosopher%d is thinking\n", philosopher_number + INC_ONE_INDEX);
+                printf("----------------------------------\n");
             }
             else {
                 // put down the first fork
-                pthread_mutex_unlock(&forks[left_fork + CONVERT_TO_ARRAY_INDEX]);
+                pthread_mutex_unlock(&forks[left_fork]);
             }
         }
     }
@@ -126,32 +126,39 @@ int main(void)
     srand((unsigned) time(NULL));
 
     // numbering for threads
-    int threadNum[NUM_PHILOSOPHER] = {1, 2, 3, 4, 5};
+    int threadNum[NUM_PHILOSOPHER] = {0, 1, 2, 3, 4};
+    int result;
 
     //Initialize pthread_cond
     pthread_cond_init(&wait_here, NULL);
 
     // initialize philosophers' state, num of meals and pthread_mutex
-    int t;
-    for(t = 0; t < NUM_PHILOSOPHER; t++) {
-        state[t] = THINKING;
-        NumOfEaten[t] = 0;
-        pthread_mutex_init(&forks[t], NULL);
+    int i;
+    for(i = 0; i < NUM_PHILOSOPHER; i++) {
+        state[i] = THINKING;
+        NumOfEaten[i] = 0;
+        pthread_mutex_init(&forks[i], NULL);
     }
 
     // check the start time
     gettimeofday(&t1, NULL);    
 
+    pthread_t philosophers[NUM_PHILOSOPHER];
+
+    int t;
     // 5 philosopher threads
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
-        pthread_create(&philosophers[t], NULL, philosopher, (void *)&threadNum[t]);
+        result = pthread_create(&philosophers[t], NULL, (void *)philosopher, (void *)&threadNum[t]);
+        if(result) {
+            printf("\nThread can't be created : [%s]", strerror(result));
+        }
     }
-    printf("test1");	
+    
     // wait for philosophers termination
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
         pthread_join(philosophers[t], NULL);
     }
-    printf("test2");
+    
     // check the total running time
     gettimeofday(&t3, NULL);
     elapsed_time = t3.tv_sec - t1.tv_sec;
@@ -162,7 +169,7 @@ int main(void)
     // display the result how many meals each philosopher have
     printf("\n/* RESULT */\n");
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
-        printf("Philosopher %d ate %d times\n", threadNum[t], NumOfEaten[t]);
+        printf("Philosopher %d ate %d times\n", threadNum[t]  + INC_ONE_INDEX, NumOfEaten[t]);
     }
 
     // destroy pthread_mutex
