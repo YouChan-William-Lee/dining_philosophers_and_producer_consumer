@@ -167,7 +167,7 @@ int main(void)
     printf("\nTime = %.2f sec\n", elapsed_time);
 
     // display the result how many meals each philosopher have
-    printf("\n/* RESULT */\n");
+    printf("\n/-------- RESULT --------/\n");
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
         printf("Philosopher %d ate %d times\n", threadNum[t]  + INC_ONE_INDEX, NumOfEaten[t]);
     }
