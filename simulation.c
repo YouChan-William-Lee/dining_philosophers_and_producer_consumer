@@ -58,7 +58,7 @@ bool check_running_time() {
 
 /* Philosopher is thinking */
 void think(int philosopher_number, int think_time) {
-    printf("Philosopher%d is thinking\n----------------------------------\n", philosopher_number + INC_ONE_INDEX);
+    printf("Philosopher%d is thinking\n", philosopher_number + INC_ONE_INDEX);
     /* think */
     usleep(think_time);
 }
@@ -66,7 +66,7 @@ void think(int philosopher_number, int think_time) {
 void pickup_forks(int philosopher_number, int left_fork, int right_fork) {
     /* pick up the first fork (left fork) */
     pthread_mutex_lock(&forks[left_fork]);
-    printf("philosopher%d picked up fork %d\n----------------------------------\n", philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);    
+    printf("philosopher%d picked up fork %d\n", philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);    
 
     /* pick up the second fork (right fork) */
     pthread_mutex_lock(&forks[right_fork]);
@@ -87,7 +87,7 @@ void eat(int philosopher_number, int eat_time) {
     /* increment of this philoshpher's meal */
     (NumOfEaten[philosopher_number ])++;
 
-    printf("Philosopher%d is eating, %d time(s)\n----------------------------------\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
+    printf("Philosopher%d is eating, %d time(s)\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
     /* eat */
     usleep(eat_time);
 }
