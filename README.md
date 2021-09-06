@@ -8,7 +8,7 @@
 To run the application:
 
 1. Unzip `s3850825.zip` file
-2. Goes into `s3850825` folder by typing `cd s3850825` in terminal
+2. Go into `s3850825` folder by typing `cd s3850825` in terminal
 3. Type `make` in terminal
 4. Now, `Dining_Philosophers` and `Producer_Consumer` files are created
 5. Type `valgrind ./Producer_Consumer` to run the Producer-Consumer problem
