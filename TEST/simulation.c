@@ -292,6 +292,10 @@ int main(void) {
     int threadNum[NUM_THREADS] = {1, 2, 3, 4, 5};
     int result, t;
 
+    /* 5 producers and 5 consumers */
+    pthread_t producers[NUM_THREADS];
+    pthread_t consumers[NUM_THREADS];
+
     /* initialize random number generator */
     srand((unsigned) time(NULL));
 
@@ -302,10 +306,6 @@ int main(void) {
     pthread_mutex_init(&mutex, NULL);
     /* initialize pthread_cond */
     pthread_cond_init(&wait_here, NULL);
-
-    /* 5 producers and 5 consumers */
-    pthread_t producers[NUM_THREADS];
-    pthread_t consumers[NUM_THREADS];
 
     /* create 5 threads which are producers */
     for(t = 0; t < NUM_THREADS; t++) {
