@@ -105,7 +105,7 @@ void return_forks(int philosopher_number, int left_fork, int right_fork, int lef
     pthread_mutex_unlock(&forks[right_fork]);
 
     /* return left fork */
-    printf("Philosopher%d returned fork %d\n----------------------------------\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
+    printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
     pthread_mutex_unlock(&forks[left_fork]);  
 }
 
