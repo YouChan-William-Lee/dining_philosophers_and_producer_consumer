@@ -123,13 +123,14 @@ void * philosopher(void * p_no) {
 
 int main(void)
 {
+    /* numbering for threads */
+    int threadNum[NUM_PHILOSOPHER] = {0, 1, 2, 3, 4};
+    int result, t;
+
+    pthread_t philosophers[NUM_PHILOSOPHER];
+
     /* initialize random number generator */
     srand((unsigned) time(NULL));
-
-    /* numbering for threads */
-    int threadNum[NUM_PHILOSOPHER]; 
-    threadNum[NUM_PHILOSOPHER] = {0, 1, 2, 3, 4};
-    int result, t;
 
     /* Initialize pthread_cond */
     pthread_cond_init(&wait_here, NULL);
@@ -143,8 +144,6 @@ int main(void)
 
     /* check the start time */
     gettimeofday(&t1, NULL);    
-
-    pthread_t philosophers[NUM_PHILOSOPHER];
 
     /* 5 philosopher threads */
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
