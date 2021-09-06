@@ -11,4 +11,4 @@ Producer_Consumer: simulation.c
 	$(CC) $(CFLAGS) $(LFLAGS) simulation.c -o Producer_Consumer -D PRODUCER_CONSUMER
 
 clean:
-	rm -f simulation *.o
+	rm -f Dining_Philosophers Producer_Consumer *.o
