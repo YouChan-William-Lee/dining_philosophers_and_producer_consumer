@@ -1,14 +1,14 @@
 CC= gcc
-CFLAGS= -Wall -o
+CFLAGS= -Wall -pedantic
 LFLAGS= -lpthread
 
-all: a c
+all: Dining_Philosophers Producer_Consumer
 
-a: a.c
-	$(CC) $(LFLAGS) $(CFLAGS) a a.c
+Dining_Philosophers: simulation.c
+	$(CC) $(CFLAGS) $(LFLAGS) simulation.c -o Dining_Philosophers -D DINING_PHILOSOPHERS
 
-c: c.c
-	$(CC) $(LFLAGS) $(CFLAGS) c c.c
+Producer_Consumer: simulation.c
+	$(CC) $(CFLAGS) $(LFLAGS) simulation.c -o Producer_Consumer -D PRODUCER_CONSUMER
 
 clean:
-	rm -f $(OBJECTS) *.o
+	rm -f simulation *.o
