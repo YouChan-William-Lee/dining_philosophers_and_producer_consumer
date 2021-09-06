@@ -147,7 +147,7 @@ int main(void)
 
     /* 5 philosopher threads */
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
-        result = pthread_create(&philosophers[t], NULL, (void *)philosopher, (void *)&threadNum[t]);
+        result = pthread_create(&philosophers[t], NULL, philosopher, (void *)&threadNum[t]);
         if(result) {
             printf("\nThread can't be created : [%s]", strerror(result));
         }
@@ -310,12 +310,12 @@ int main(void) {
 
     /* create 5 threads which are producers */
     for(t = 0; t < NUM_THREADS; t++) {
-        result = pthread_create(&producers[t], NULL, (void *)producer, (void *)&threadNum[t]);
+        result = pthread_create(&producers[t], NULL, producer, (void *)&threadNum[t]);
         if(result) {
             printf("\nThread can't be created : [%s]", strerror(result));
         }
 
-        result = pthread_create(&consumers[t], NULL, (void *)consumer, (void *)&threadNum[t]);
+        result = pthread_create(&consumers[t], NULL, consumer, (void *)&threadNum[t]);
         if(result) {
             printf("\nThread can't be created : [%s]", strerror(result));
         }
