@@ -25,7 +25,7 @@ struct timeval t1, t2, t3;
 double elapsed_time;
 
 pthread_mutex_t forks[NUM_PHILOSOPHER];
-pthread_cond_t wait_here;
+pthread_cond_t wait_here[NUM_PHILOSOPHER];
 
 /* check left neighbour and right neighbour */
 void check_neighbours(int philosopher_number) {
@@ -37,86 +37,104 @@ void check_neighbours(int philosopher_number) {
         /* check right neighbour */
         && (state[right_philosopher] != EATING)) {
         /* if both left neighbour and right neighbour are not eating, then this philosopher can start eating */
-        state[philosopher_number] = EATING;        
+        state[philosopher_number] = EATING;  
+        /* send a signal "that you can eat" */
+        pthread_cond_signal(&wait_here[philosopher_number]);      
     }
+}
+
+/* check the running time*/
+bool check_running_time() {
+    /* check the running time */
+    gettimeofday(&t2, NULL);
+    elapsed_time = t2.tv_sec - t1.tv_sec;
+    elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
+    /* check if the running time is greater than or equal to 10 */
+    if(elapsed_time >= 10.0) {
+        return true;
+    }
+    return false;
+}
+
+/* Philosopher is thinking */
+void think(int philosopher_number, int think_time) {
+    printf("Philosopher%d is thinking\n----------------------------------\n", philosopher_number + INC_ONE_INDEX);
+    /* think */
+    usleep(think_time);
+}
+
+void pickup_forks(int philosopher_number, int left_fork, int right_fork) {
+    /* try to grab the first fork (left fork) */
+    pthread_mutex_lock(&forks[left_fork]);
+    /* try to grab the second fork (right fork) */
+    pthread_mutex_lock(&forks[right_fork]);
+
+    printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
+    printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
+
+    /* check both left and right neighbour are eating */
+    check_neighbours(philosopher_number);
+
+    /* if neighbours are eating, then wait until they finish */
+    while(state[philosopher_number] != EATING)
+    {
+        pthread_cond_wait(&wait_here[philosopher_number], &forks[left_fork]);
+        pthread_cond_wait(&wait_here[philosopher_number], &forks[right_fork]);
+    }
+}
+
+void eat(int philosopher_number, int eat_time) {
+    /* increment of this philoshpher's meal */
+    (NumOfEaten[philosopher_number ])++;
+
+    printf("Philosopher%d is eating, %d time(s)\n----------------------------------\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
+    /* eat */
+    usleep(eat_time);
+}
+
+void return_forks(int philosopher_number, int left_fork, int right_fork, int left_philosopher, int right_philosopher) {
+    /* return two forks */
+    printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
+    printf("Philosopher%d returned fork %d\n----------------------------------\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
+    
+    /* Let neighbours know that I'm done */
+    check_neighbours(left_philosopher);
+    check_neighbours(right_philosopher);
+
+    /* turn to think */
+    state[philosopher_number] = THINKING;
+
+    /* unlock */
+    pthread_mutex_unlock(&forks[right_fork]);
+    pthread_mutex_unlock(&forks[left_fork]);  
 }
 
 void * philosopher(void * p_no) {
     int philosopher_number = *(int *)p_no;
     int left_fork = philosopher_number;
     int right_fork = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
+    int left_philosopher = (philosopher_number + NUM_PHILOSOPHER + LEFT) % NUM_PHILOSOPHER;
+    int right_philosopher = (philosopher_number + RIGHT) % NUM_PHILOSOPHER;
 
     while(true)
-    {
-        int think_time, result;
+    {        
+        /* CHECKING THE RUNNING TIME */
+        if(check_running_time()) break;
 
-        /* check the running time */
-        gettimeofday(&t2, NULL);
-        elapsed_time = t2.tv_sec - t1.tv_sec;
-        elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
-        /* check if the running time is greater than or equal to 10 */
-        if(elapsed_time >= 10.0) {
-            break;
-        }
+        /* THINKING */
+        think(philosopher_number, MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY)));
 
-        think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
-        printf("Philosopher%d is thinking\n", philosopher_number + INC_ONE_INDEX);
-        printf("----------------------------------\n");
-        /* think */
-        usleep(think_time);
-
-        /* hungry */
+        /* HUNGRY */
         state[philosopher_number] = HUNGRY;
 
-        /* try to grab the first fork (left fork) */
-        result = pthread_mutex_trylock(&forks[left_fork]);
-        if(result == 0) {
-            /* try to grab the second fork (right fork) */
-            result = pthread_mutex_trylock(&forks[right_fork]);
-            if(result == 0) {
-                int eat_time;
-                printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
-                printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
+        /* PICK UP TWO FORKS*/
+        pickup_forks(philosopher_number, left_fork, right_fork);
 
-                /* check both left and right neighbour are eating */
-                check_neighbours(philosopher_number);
-
-                /* if neighbours are eating, then wait until they finish */
-                while(state[philosopher_number] != EATING)
-                {
-                    pthread_cond_wait(&wait_here, &forks[left_fork]);
-                    pthread_cond_wait(&wait_here, &forks[right_fork]);
-                }
-
-                /* increment of this philoshpher's meal */
-                (NumOfEaten[philosopher_number ])++;
-
-                printf("Philosopher%d is eating, %d time(s)\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
-                printf("----------------------------------\n");
-                /* eat */
-                eat_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
-                usleep(eat_time);
-                
-                /* return two forks */
-                printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
-                printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
-                printf("----------------------------------\n");
-
-                /* unlock */
-                pthread_mutex_unlock(&forks[right_fork]);
-                pthread_mutex_unlock(&forks[left_fork]);
-
-                /* send signal */
-                pthread_cond_signal(&wait_here);
-
-                /* turn to think */
-                state[philosopher_number] = THINKING;
-            }
-            else {
-                /* put down the first fork */
-                pthread_mutex_unlock(&forks[left_fork]);
-            }
-        }
+        /* EATING */
+        eat(philosopher_number, MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY)));
+        
+        /* RETURN TWO FORKS*/
+        return_forks(philosopher_number, left_fork, right_fork, left_philosopher, right_philosopher);    
     }
     return NULL;
 }
@@ -130,16 +148,14 @@ int main(void)
     pthread_t philosophers[NUM_PHILOSOPHER];
 
     /* initialize random number generator */
-    srand((unsigned) time(NULL));
+    srand((unsigned) time(NULL));    
 
-    /* Initialize pthread_cond */
-    pthread_cond_init(&wait_here, NULL);
-
-    /* initialize philosophers' state, num of meals and pthread_mutex */
+    /* initialize philosophers' state, num of meals, pthread_mutex_t and pthread_cond_t */
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
         state[t] = THINKING;
         NumOfEaten[t] = 0;
         pthread_mutex_init(&forks[t], NULL);
+        pthread_cond_init(&wait_here[t], NULL);
     }
 
     /* check the start time */
@@ -182,7 +198,6 @@ int main(void)
     return EXIT_SUCCESS;
 }
 
-
 #elif defined PRODUCER_CONSUMER
 
 #include <stdio.h>
@@ -218,9 +233,7 @@ void * producer(void * p_no) {
         elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
 
         /* check if the running time is greater than or equal to 10 */
-        if(elapsed_time >= 10.0) {
-            break;
-        }
+        if(elapsed_time >= 10.0) break;
 
         /* generate a random number between 1 and 99 */
         item = rand() % MAX_RANDOM_NUMBER + 1;
@@ -232,7 +245,7 @@ void * producer(void * p_no) {
             while (NumOfItems == 10) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
-
+            
             /* put the random number into bucket */
             buckets[bucketIn] = item;
             /* increase the number of items */
@@ -246,6 +259,7 @@ void * producer(void * p_no) {
         pthread_mutex_unlock(&mutex);
         /* send signal */
         pthread_cond_signal(&wait_here);
+        /* sleep for other threads */
         usleep(SLEEP_TIME);
     }
     return NULL;
@@ -259,9 +273,7 @@ void * consumer(void * c_no) {
         elapsed_time += (t3.tv_usec - t1.tv_usec) / 1000000.0;
 
         /* check if the running time is greater than or equal to 10 */
-        if(elapsed_time >= 10.0) {
-            break;
-        }
+        if(elapsed_time >= 10.0) break;
 
         /* lock here */
         pthread_mutex_lock(&mutex);
@@ -269,7 +281,8 @@ void * consumer(void * c_no) {
             /* consumer checks if buckets are empty or current bucket is empty */
             while (NumOfItems == 0) {
                 pthread_cond_wait(&wait_here, &mutex);
-            } 
+            }
+
             /* decrease the number of items */
             NumOfItems -= 1;
             printf("Consumer%d consumed %2d in buckets[%d]\n",*((int *)c_no) , buckets[bucketOut], bucketOut);
@@ -282,6 +295,7 @@ void * consumer(void * c_no) {
         pthread_mutex_unlock(&mutex);
         /* send signal */
         pthread_cond_signal(&wait_here);
+        /* sleep for other threads */
         usleep(SLEEP_TIME);
     }
     return NULL;
@@ -320,7 +334,6 @@ int main(void) {
         }
     }
 
-
     /* wait for producers termination */
     for(t = 0; t < NUM_THREADS; t++) {
         pthread_join(producers[t], NULL);
@@ -344,6 +357,5 @@ int main(void) {
     pthread_exit(NULL);
     return EXIT_SUCCESS;
 }
-
 
 #endif
