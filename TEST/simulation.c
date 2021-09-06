@@ -288,16 +288,15 @@ void * consumer(void * c_no) {
 }
 
 int main(void) {
-    /* check the start time */
-    gettimeofday(&t1, NULL);
-
     /* numbering for threads */
-    int threadNum[NUM_THREADS];
-    threadNum[NUM_THREADS] = {1, 2, 3, 4, 5};
+    int threadNum[NUM_THREADS] = {1, 2, 3, 4, 5};
     int result, t;
 
     /* initialize random number generator */
     srand((unsigned) time(NULL));
+
+    /* check the start time */
+    gettimeofday(&t1, NULL);
 
     /* initialize pthread_mutex */
     pthread_mutex_init(&mutex, NULL);
