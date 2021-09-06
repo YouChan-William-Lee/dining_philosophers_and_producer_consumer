@@ -34,7 +34,7 @@ void check_neighbours(int philosopher_number) {
 
     /* check left neighbour                    check this philosopher */                  
     if((state[left_philosopher] != EATING) && (state[philosopher_number] == HUNGRY) 
-        /* check right neighbour
+        /* check right neighbour */
         && (state[right_philosopher] != EATING)) {
         /* if both left neighbour and right neighbour are not eating, then this philosopher can start eating */
         state[philosopher_number] = EATING;        
