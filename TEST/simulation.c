@@ -48,6 +48,8 @@ void * philosopher(void * p_no) {
 
     while(true)
     {
+        int think_time, result;
+
         /* check the running time */
         gettimeofday(&t2, NULL);
         elapsed_time = t2.tv_sec - t1.tv_sec;
@@ -57,7 +59,6 @@ void * philosopher(void * p_no) {
             break;
         }
 
-        int think_time;
         think_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
         printf("Philosopher%d is thinking\n", philosopher_number + INC_ONE_INDEX);
         printf("----------------------------------\n");
@@ -68,12 +69,12 @@ void * philosopher(void * p_no) {
         state[philosopher_number] = HUNGRY;
 
         /* try to grab the first fork (left fork) */
-        int result;
         result = pthread_mutex_trylock(&forks[left_fork]);
         if(result == 0) {
             /* try to grab the second fork (right fork) */
             result = pthread_mutex_trylock(&forks[right_fork]);
             if(result == 0) {
+                int eat_time;
                 printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
                 printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
 
@@ -93,7 +94,6 @@ void * philosopher(void * p_no) {
                 printf("Philosopher%d is eating, %d time(s)\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
                 printf("----------------------------------\n");
                 /* eat */
-                int eat_time;
                 eat_time = MIN_DELAY + (rand() % (MAX_DELAY - MIN_DELAY));
                 usleep(eat_time);
                 
@@ -127,7 +127,8 @@ int main(void)
     srand((unsigned) time(NULL));
 
     /* numbering for threads */
-    int threadNum[NUM_PHILOSOPHER] = {0, 1, 2, 3, 4};
+    int threadNum[NUM_PHILOSOPHER]; 
+    threadNum[NUM_PHILOSOPHER] = {0, 1, 2, 3, 4};
     int result, t;
 
     /* Initialize pthread_cond */
@@ -135,9 +136,9 @@ int main(void)
 
     /* initialize philosophers' state, num of meals and pthread_mutex */
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
-        state[i] = THINKING;
-        NumOfEaten[i] = 0;
-        pthread_mutex_init(&forks[i], NULL);
+        state[t] = THINKING;
+        NumOfEaten[t] = 0;
+        pthread_mutex_init(&forks[t], NULL);
     }
 
     /* check the start time */
@@ -301,7 +302,7 @@ int main(void) {
 
     /* initialize pthread_mutex */
     pthread_mutex_init(&mutex, NULL);
-    // initialize pthread_cond */
+    /* initialize pthread_cond */
     pthread_cond_init(&wait_here, NULL);
 
     /* 5 producers and 5 consumers */
