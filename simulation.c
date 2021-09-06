@@ -64,15 +64,12 @@ void think(int philosopher_number, int think_time) {
 }
 
 void pickup_forks(int philosopher_number, int left_fork, int right_fork) {
-    /* try to grab the first fork (left fork) */
+    /* pick up the first fork (left fork) */
     pthread_mutex_lock(&forks[left_fork]);
-    printf("philosopher%d picked up fork %d\n", philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);    
+    printf("philosopher%d picked up fork %d\n----------------------------------\n", philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);    
 
-    /* try to grab the second fork (right fork) */
+    /* pick up the second fork (right fork) */
     pthread_mutex_lock(&forks[right_fork]);
-    /*
-    printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
-    */
     printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
 
     /* check both left and right neighbour are eating */
@@ -96,10 +93,6 @@ void eat(int philosopher_number, int eat_time) {
 }
 
 void return_forks(int philosopher_number, int left_fork, int right_fork, int left_philosopher, int right_philosopher) {
-    /* return two forks */
-    printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
-    printf("Philosopher%d returned fork %d\n----------------------------------\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
-    
     /* Let neighbours know that I'm done */
     check_neighbours(left_philosopher);
     check_neighbours(right_philosopher);
@@ -107,8 +100,12 @@ void return_forks(int philosopher_number, int left_fork, int right_fork, int lef
     /* turn to think */
     state[philosopher_number] = THINKING;
 
-    /* unlock */
+    /* return right fork */
+    printf("Philosopher%d returned fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
     pthread_mutex_unlock(&forks[right_fork]);
+
+    /* return left fork */
+    printf("Philosopher%d returned fork %d\n----------------------------------\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
     pthread_mutex_unlock(&forks[left_fork]);  
 }
 
@@ -248,7 +245,7 @@ void * producer(void * p_no) {
             while (NumOfItems == 10) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
-            
+
             /* put the random number into bucket */
             buckets[bucketIn] = item;
             /* increase the number of items */
