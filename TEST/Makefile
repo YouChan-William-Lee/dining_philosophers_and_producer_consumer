@@ -1,12 +1,14 @@
 CC= gcc
-CFLAGS= -Wall -o
+CFLAGS= -Wall -pedantic
 LFLAGS= -lpthread
 
-all: simulation
+all: Dining Prodconsum
 
-a: simuation
-	$(CC) $(LFLAGS) $(CFLAGS) Dining simulation.c -D Dining
-	$(CC) $(LFLAGS) $(CFLAGS) Prodconsum simulation.c -D PRODCONSUM
+Dining: simulation.c
+	$(CC) $(CFLAGS) $(LFLAGS) simulation.c -o Dining -D DINING
+
+Prodconsum: simulation.c
+	$(CC) $(CFLAGS) $(LFLAGS) simulation.c -o Prodconsum -D PRODCONSUM
 
 clean:
-	rm -f $(OBJECTS) *.o
+	rm -f simulation *.o
