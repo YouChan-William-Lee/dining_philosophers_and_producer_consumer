@@ -66,10 +66,13 @@ void think(int philosopher_number, int think_time) {
 void pickup_forks(int philosopher_number, int left_fork, int right_fork) {
     /* try to grab the first fork (left fork) */
     pthread_mutex_lock(&forks[left_fork]);
+    printf("philosopher%d picked up fork %d\n", philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);    
+
     /* try to grab the second fork (right fork) */
     pthread_mutex_lock(&forks[right_fork]);
-
+    /*
     printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, left_fork + INC_ONE_INDEX);
+    */
     printf("Philosopher%d picked up fork %d\n",philosopher_number + INC_ONE_INDEX, right_fork + INC_ONE_INDEX);
 
     /* check both left and right neighbour are eating */
