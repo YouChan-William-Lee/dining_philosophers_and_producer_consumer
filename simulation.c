@@ -15,6 +15,8 @@
 #define MAX_DELAY 500000
 #define MIN_DELAY 100000
 #define INC_ONE_INDEX 1
+#define MAX_RUN_TIME 10.0
+#define CONVERT_USEC_TO_SEC 1000000.0
 
 /* 3 states of philosophers */
 enum {THINKING, HUNGRY, EATING} state[NUM_PHILOSOPHER];
@@ -48,9 +50,9 @@ bool check_running_time() {
     /* check the running time */
     gettimeofday(&t2, NULL);
     elapsed_time = t2.tv_sec - t1.tv_sec;
-    elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
+    elapsed_time += (t2.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
     /* check if the running time is greater than or equal to 10 */
-    if(elapsed_time >= 10.0) {
+    if(elapsed_time >= MAX_RUN_TIME) {
         return true;
     }
     return false;
@@ -177,7 +179,7 @@ int main(void)
     /* check the total running time */
     gettimeofday(&t3, NULL);
     elapsed_time = t3.tv_sec - t1.tv_sec;
-    elapsed_time += (t3.tv_usec - t1.tv_usec) / 1000000.0;
+    elapsed_time += (t3.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
 
     printf("\nTime = %.2f sec\n", elapsed_time);
 
@@ -211,8 +213,11 @@ int main(void)
 
 #define NUM_THREADS 5
 #define NUM_BUCKETS 10
+#define EMPTY_BUCKETS 0
 #define MAX_RANDOM_NUMBER 99
 #define SLEEP_TIME 100000
+#define MAX_RUN_TIME 10.0
+#define CONVERT_USEC_TO_SEC 1000000.0
 
 int bucketIn = 0;
 int bucketOut = 0;
@@ -230,10 +235,10 @@ void * producer(void * p_no) {
         /* check the running time */
         gettimeofday(&t2, NULL);
         elapsed_time = t2.tv_sec - t1.tv_sec;
-        elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000000.0;
+        elapsed_time += (t2.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
 
         /* check if the running time is greater than or equal to 10 */
-        if(elapsed_time >= 10.0) break;
+        if(elapsed_time >= MAX_RUN_TIME) break;
 
         /* generate a random number between 1 and 99 */
         item = rand() % MAX_RANDOM_NUMBER + 1;
@@ -241,8 +246,8 @@ void * producer(void * p_no) {
         /* lock here */
         pthread_mutex_lock(&mutex);
         {   
-            /* producer checks if buckets are full or current bucket isn't empty */
-            while (NumOfItems == 10) {
+            /* producer checks if buckets are full */
+            while (NumOfItems == NUM_BUCKETS) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
 
@@ -270,16 +275,16 @@ void * consumer(void * c_no) {
         /* check the running time */
         gettimeofday(&t3, NULL);
         elapsed_time = t3.tv_sec - t1.tv_sec;
-        elapsed_time += (t3.tv_usec - t1.tv_usec) / 1000000.0;
+        elapsed_time += (t3.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
 
         /* check if the running time is greater than or equal to 10 */
-        if(elapsed_time >= 10.0) break;
+        if(elapsed_time >= MAX_RUN_TIME) break;
 
         /* lock here */
         pthread_mutex_lock(&mutex);
         {  
-            /* consumer checks if buckets are empty or current bucket is empty */
-            while (NumOfItems == 0) {
+            /* consumer checks if buckets are empty */
+            while (NumOfItems == EMPTY_BUCKETS) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
 
@@ -347,7 +352,7 @@ int main(void) {
     /* check the total running time */
     gettimeofday(&t4, NULL);
     elapsed_time = t4.tv_sec - t1.tv_sec;
-    elapsed_time += (t4.tv_usec - t1.tv_usec) / 1000000.0;
+    elapsed_time += (t4.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
 
     printf("\nTime = %.2f sec\n", elapsed_time);
 
