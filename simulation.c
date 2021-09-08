@@ -284,7 +284,7 @@ void * consumer(void * c_no) {
         pthread_mutex_lock(&mutex);
         {  
             /* consumer checks if buckets are empty */
-            while (Num_items == EMPTY_BUCKETS) {
+            while (Num_Items == EMPTY_BUCKETS) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
 
