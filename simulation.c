@@ -349,7 +349,7 @@ int main(void) {
     elapsed_time = t4.tv_sec - t1.tv_sec;
     elapsed_time += (t4.tv_usec - t1.tv_usec) / 1000000.0;
 
-    printf("Time = %.2f sec\n", elapsed_time);
+    printf("\nTime = %.2f sec\n", elapsed_time);
 
     /* destroy pthread_mutex */
     pthread_mutex_destroy(&mutex);
