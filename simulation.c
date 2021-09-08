@@ -16,7 +16,7 @@
 #define MIN_DELAY 100000
 #define INC_ONE_INDEX 1
 #define MAX_RUN_TIME 10.0
-#define CONVERT_USEC_TO_SEC 1000000.0
+#define CONVERT_USEC_TO_SEC 0.000001
 
 /* 3 states of philosophers */
 enum {THINKING, HUNGRY, EATING} state[NUM_PHILOSOPHER];
@@ -50,7 +50,7 @@ bool check_running_time() {
     /* check the running time */
     gettimeofday(&t2, NULL);
     elapsed_time = t2.tv_sec - t1.tv_sec;
-    elapsed_time += (t2.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
+    elapsed_time += (t2.tv_usec - t1.tv_usec) * CONVERT_USEC_TO_SEC;
     /* check if the running time is greater than or equal to 10 */
     if(elapsed_time >= MAX_RUN_TIME) {
         return true;
@@ -179,7 +179,7 @@ int main(void)
     /* check the total running time */
     gettimeofday(&t3, NULL);
     elapsed_time = t3.tv_sec - t1.tv_sec;
-    elapsed_time += (t3.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
+    elapsed_time += (t3.tv_usec - t1.tv_usec) * CONVERT_USEC_TO_SEC;
 
     printf("\nTime = %.2f sec\n", elapsed_time);
 
@@ -217,7 +217,7 @@ int main(void)
 #define MAX_RANDOM_NUMBER 99
 #define SLEEP_TIME 100000
 #define MAX_RUN_TIME 10.0
-#define CONVERT_USEC_TO_SEC 1000000.0
+#define CONVERT_USEC_TO_SEC 0.000001
 
 int bucketIn = 0;
 int bucketOut = 0;
@@ -235,7 +235,7 @@ void * producer(void * p_no) {
         /* check the running time */
         gettimeofday(&t2, NULL);
         elapsed_time = t2.tv_sec - t1.tv_sec;
-        elapsed_time += (t2.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
+        elapsed_time += (t2.tv_usec - t1.tv_usec) * CONVERT_USEC_TO_SEC;
 
         /* check if the running time is greater than or equal to 10 */
         if(elapsed_time >= MAX_RUN_TIME) break;
@@ -275,7 +275,7 @@ void * consumer(void * c_no) {
         /* check the running time */
         gettimeofday(&t3, NULL);
         elapsed_time = t3.tv_sec - t1.tv_sec;
-        elapsed_time += (t3.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
+        elapsed_time += (t3.tv_usec - t1.tv_usec) * CONVERT_USEC_TO_SEC;
 
         /* check if the running time is greater than or equal to 10 */
         if(elapsed_time >= MAX_RUN_TIME) break;
@@ -352,7 +352,7 @@ int main(void) {
     /* check the total running time */
     gettimeofday(&t4, NULL);
     elapsed_time = t4.tv_sec - t1.tv_sec;
-    elapsed_time += (t4.tv_usec - t1.tv_usec) / CONVERT_USEC_TO_SEC;
+    elapsed_time += (t4.tv_usec - t1.tv_usec) * CONVERT_USEC_TO_SEC;
 
     printf("\nTime = %.2f sec\n", elapsed_time);
 
