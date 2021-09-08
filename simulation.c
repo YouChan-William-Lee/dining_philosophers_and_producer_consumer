@@ -89,7 +89,7 @@ void eat(int philosopher_number, int eat_time) {
     /* increment of this philoshpher's meal */
     (Num_Meal[philosopher_number ])++;
 
-    printf("Philosopher%d is eating, %d time(s)\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
+    printf("Philosopher%d is eating, %d time(s)\n", philosopher_number + INC_ONE_INDEX, Num_Meal[philosopher_number]);
     /* eat */
     usleep(eat_time);
 }
