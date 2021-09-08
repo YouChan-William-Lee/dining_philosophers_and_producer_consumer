@@ -22,7 +22,7 @@
 enum {THINKING, HUNGRY, EATING} state[NUM_PHILOSOPHER];
 
 /* how many meals philosophers have */
-int NumOfEaten[NUM_PHILOSOPHER];
+int Num_Meal[NUM_PHILOSOPHER];
 struct timeval t1, t2, t3;
 double elapsed_time;
 
@@ -87,7 +87,7 @@ void pickup_forks(int philosopher_number, int left_fork, int right_fork) {
 
 void eat(int philosopher_number, int eat_time) {
     /* increment of this philoshpher's meal */
-    (NumOfEaten[philosopher_number ])++;
+    (Num_Meal[philosopher_number ])++;
 
     printf("Philosopher%d is eating, %d time(s)\n", philosopher_number + INC_ONE_INDEX, NumOfEaten[philosopher_number]);
     /* eat */
@@ -155,7 +155,7 @@ int main(void)
     /* initialize philosophers' state, num of meals, pthread_mutex_t and pthread_cond_t */
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
         state[t] = THINKING;
-        NumOfEaten[t] = 0;
+        Num_Meal[t] = 0;
         pthread_mutex_init(&forks[t], NULL);
         pthread_cond_init(&wait_here[t], NULL);
     }
@@ -186,7 +186,7 @@ int main(void)
     /* display the result how many meals each philosopher have */
     printf("\n/-------- RESULT --------/\n");
     for(t = 0; t < NUM_PHILOSOPHER; t++) {
-        printf("Philosopher %d ate %d times\n", threadNum[t]  + INC_ONE_INDEX, NumOfEaten[t]);
+        printf("Philosopher %d ate %d times\n", threadNum[t]  + INC_ONE_INDEX, Num_Meal[t]);
     }
 
     /* destroy pthread_mutex */
