@@ -221,7 +221,7 @@ int main(void)
 
 int bucketIn = 0;
 int bucketOut = 0;
-int NumOfItems = 0;
+int Num_Items = 0;
 int buckets[NUM_BUCKETS];
 struct timeval t1, t2, t3, t4;
 double elapsed_time;
@@ -247,14 +247,14 @@ void * producer(void * p_no) {
         pthread_mutex_lock(&mutex);
         {   
             /* producer checks if buckets are full */
-            while (NumOfItems == NUM_BUCKETS) {
+            while (Num_Items == NUM_BUCKETS) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
 
             /* put the random number into bucket */
             buckets[bucketIn] = item;
             /* increase the number of items */
-            NumOfItems += 1;
+            Num_Items += 1;
             printf("Producer%d produced %2d in buckets[%d]\n",*((int *)p_no) , buckets[bucketIn], bucketIn);
             
             /* jump to next bucket */
@@ -284,7 +284,7 @@ void * consumer(void * c_no) {
         pthread_mutex_lock(&mutex);
         {  
             /* consumer checks if buckets are empty */
-            while (NumOfItems == EMPTY_BUCKETS) {
+            while (Num_items == EMPTY_BUCKETS) {
                 pthread_cond_wait(&wait_here, &mutex);
             }
 
