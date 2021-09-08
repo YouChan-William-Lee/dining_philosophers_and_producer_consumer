@@ -289,7 +289,7 @@ void * consumer(void * c_no) {
             }
 
             /* decrease the number of items */
-            NumOfItems -= 1;
+            Num_Items -= 1;
             printf("Consumer%d consumed %2d in buckets[%d]\n",*((int *)c_no) , buckets[bucketOut], bucketOut);
             buckets[bucketOut] = 0;
             
